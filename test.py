@@ -6,11 +6,11 @@ import logging
 
 # Third-Party Libraries
 import numpy as np
-from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensor, AsDiscreted,
+import monai
+from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensor, AsDiscreted
 from monai.networks.nets import UNet
 from monai.data import DataLoader, Dataset
 from monai.networks.layers import Norm
-from monai.metrics import DiceMetric
 import torch
 import torchstain
 import torchvision
@@ -18,8 +18,16 @@ import pytorch_lightning as pl
 
 # Local Libraries
 from helper_functions.preprocessing import HENormalization
-from helper_functions.machine_learning import CombinedDiceFocalLoss, UNetLightning
+from helper_functions.machine_learning import UNetLightning
 from helper_functions.cmd_parser  import setup_argparser
+
+
+# set GPU if required
+# os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
+
+# set common seed for monai operations
+monai.utils.misc.set_determinism(seed=421337133742)
 
 
 def main(
@@ -31,7 +39,7 @@ def main(
     ):  
     # setup data paths
     test_images_path = Path(os.path.join(data_path,'test','img'))
-    test_labels_path = Path(os.path.join(data_path,'test', 'refined_labels'))
+    test_labels_path = Path(os.path.join(data_path,'test', 'inverted_lbls'))
 
     # setup img/label dicts
     test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == '.png'])
@@ -48,7 +56,7 @@ def main(
     test_transforms = Compose([
         LoadImaged(keys=['img', 'seg'], dtype=np.float32, ensure_channel_first=True),
         HENormalization(keys=['img'], normalizer=normalizer, method='reinhard'),
-        AsDiscreted(keys=['seg'], threshold=100, dtype=np.int32),
+        #AsDiscreted(keys=['seg'], threshold=100, dtype=np.int32),
         EnsureChannelFirstd(keys=['img']),
         ToTensor(dtype=np.float32),
     ])
@@ -82,10 +90,8 @@ def main(
         dropout=0.1
     )
 
-    loss_function = CombinedDiceFocalLoss(dice_weight=0.7, focal_weight=0.3)
-    metric = DiceMetric(include_background=True, reduction="mean")
 
-    pl_model = UNetLightning(model, loss_function, metric, test_loader, test_files)
+    pl_model = UNetLightning(model, test_loader, test_files)
 
     # Initialize the trainer
     trainer = pl.Trainer(devices=1, accelerator="gpu" if torch.cuda.is_available() else "cpu")

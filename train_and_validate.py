@@ -6,6 +6,7 @@ import logging
 
 # Third-Party Libraries
 import numpy as np
+import monai
 from monai.transforms import (
     Compose, LoadImaged, EnsureChannelFirstd, ToTensor, 
     RandRotate90d, RandFlipd, RandAdjustContrastd, 
@@ -22,8 +23,16 @@ import pytorch_lightning as pl
 
 # Local Libraries
 from helper_functions.preprocessing import HENormalization
-from helper_functions.machine_learning import CombinedDiceFocalLoss, UNetLightning
+from helper_functions.machine_learning import UNetLightning
 from helper_functions.cmd_parser  import setup_argparser
+
+
+# set GPU if required
+# os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
+
+# set common seed for monai operations
+monai.utils.misc.set_determinism(seed=421337133742)
 
 
 def main(
@@ -47,7 +56,7 @@ def main(
     torch.set_float32_matmul_precision('medium')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # setup data paths
+    # # setup data paths
     train_images_path = Path(os.path.join(data_path,'train','img'))
     train_labels_path = Path(os.path.join(data_path,'train', 'refined_labels'))
     validate_images_path = Path(os.path.join(data_path,'validate','img'))
@@ -75,7 +84,7 @@ def main(
     # setup transformation compositions and create datasets
     train_transforms = Compose([
         LoadImaged(keys=['img', 'seg'], dtype=np.int16, ensure_channel_first=True),
-        AsDiscreted(keys=['seg'], threshold=100),
+        #AsDiscreted(keys=['seg'], threshold=100),
         RandAdjustContrastd(keys=['img'], prob=0.5, gamma=(0.7, 1.3)),
         RandGaussianNoised(keys=['img'], prob=0.5, mean=0.0, std=0.01),
         HENormalization(keys=['img'], normalizer=normalizer, method='reinhard'),
@@ -88,7 +97,7 @@ def main(
     val_transforms = Compose([
         LoadImaged(keys=['img', 'seg'], dtype=np.float32, ensure_channel_first=True),
         HENormalization(keys=['img'], normalizer=normalizer, method='reinhard'),
-        AsDiscreted(keys=['seg'], threshold=100, dtype=np.int32),
+        #AsDiscreted(keys=['seg'], threshold=100, dtype=np.int32),
         EnsureChannelFirstd(keys=['img']),
         ToTensor(dtype=np.float32),
     ])
@@ -136,18 +145,15 @@ def main(
         dropout=0.1
     )
 
-    loss_function = CombinedDiceFocalLoss(dice_weight=0.7, focal_weight=0.3)
-    metric = DiceMetric(include_background=True, reduction="mean")
-
-    pl_model = UNetLightning(model, loss_function, metric, val_loader, val_files)
+    pl_model = UNetLightning(model, val_loader, val_files)
 
     trainer = pl.Trainer(
-        max_epochs=100,
+        max_epochs=500,
         devices=1, accelerator="gpu",# if torch.cuda.is_available() else 'cpu',
-        precision="16-mixed" if torch.cuda.is_available() else 32,
+        precision=32,
         callbacks=[
-            pl.callbacks.ModelCheckpoint(monitor='val_dice', mode='max', save_top_k=1, verbose=True),
-            pl.callbacks.EarlyStopping(monitor='val_dice', patience=10, mode='max', verbose=True)
+            pl.callbacks.ModelCheckpoint(monitor='val_dice', mode='max', save_top_k=2, verbose=True),
+            pl.callbacks.EarlyStopping(monitor='val_loss', patience=16, mode='min', verbose=True)
         ]
     )
 

@@ -48,7 +48,9 @@ def save_visualizations(
                 original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB).astype(uint8)
                 axs[0].imshow(original_img)
 
-                axs[1].set_title("Normalized Image")
+                #axs[0].imshow(original_img)
+
+                #axs[1].set_title("Normalized Image")
                 img = inputs[j].cpu().permute(1, 2, 0).astype(uint8)
                 axs[1].imshow(img)
 
