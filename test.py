@@ -42,8 +42,11 @@ def main(
     test_labels_path = Path(os.path.join(data_path,'test', 'inverted_lbls'))
 
     # setup img/label dicts
-    test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == '.png'])
-    test_labels = sorted([x for x in test_labels_path.iterdir() if x.suffix == '.png'])
+    test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
+    test_labels = sorted([x for x in test_labels_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
+
+    test_images = [str(x) for x in test_images]
+    test_labels = [str(x) for x in test_labels]
 
     test_files = [{'img': img, 'seg': seg} for img, seg in zip(test_images, test_labels)]
 

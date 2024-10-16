@@ -56,17 +56,21 @@ def main(
     torch.set_float32_matmul_precision('medium')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # # setup data paths
-    train_images_path = Path(os.path.join(data_path,'train','img'))
-    train_labels_path = Path(os.path.join(data_path,'train', 'refined_labels'))
-    validate_images_path = Path(os.path.join(data_path,'validate','img'))
-    validate_labels_path = Path(os.path.join(data_path,'validate', 'refined_labels'))
+    # setup data paths
+    train_images_path = Path(os.path.join(data_path,'minimal','img'))
+    train_labels_path = Path(os.path.join(data_path,'minimal', 'inverted_lbls'))
+    validate_images_path = Path(os.path.join(data_path,'minimal','img'))
+    validate_labels_path = Path(os.path.join(data_path,'minimal', 'inverted_lbls'))
+    # train_images_path = Path(os.path.join(data_path,'train','img'))
+    # train_labels_path = Path(os.path.join(data_path,'train', 'refined_labels'))
+    # validate_images_path = Path(os.path.join(data_path,'validate','img'))
+    # validate_labels_path = Path(os.path.join(data_path,'validate', 'refined_labels'))
 
     # setup img/label dicts
-    train_images = sorted([x for x in train_images_path.iterdir() if x.suffix == '.png'])
-    train_labels = sorted([x for x in train_labels_path.iterdir() if x.suffix == '.png'])
-    val_images = sorted([x for x in validate_images_path.iterdir() if x.suffix == '.png'])
-    val_labels = sorted([x for x in validate_labels_path.iterdir() if x.suffix == '.png'])
+    train_images = sorted([x for x in train_images_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
+    train_labels = sorted([x for x in train_labels_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
+    val_images = sorted([x for x in validate_images_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
+    val_labels = sorted([x for x in validate_labels_path.iterdir() if x.suffix == '.png' and not x.startswith('.')])
 
     train_images = [str(x) for x in train_images]
     train_labels = [str(x) for x in train_labels]

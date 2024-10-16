@@ -2,10 +2,10 @@
 .DSStore
 .vscode
 lightning_logs/
-generate_images.ipynb
-test_normalization.ipynb
+*.ipynb
 visualizations_epoch_*/
-invert_labels.ipynb
+invert_labels.py
+refine_lbls.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
