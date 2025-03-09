@@ -1,12 +1,7 @@
-================================================================================
-Monai GBM Segmentation
---------------------------------------------------------------------------------
 Monai GBM Segmentation is licensed under The Happy Bunny License or MIT License
 
-================================================================================
-The Happy Bunny License (Modified MIT License)
---------------------------------------------------------------------------------
-Copyright (c) 2024 Daniel Hieber
+---
+## The Happy Bunny License (Modified MIT License)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +25,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-================================================================================
-MIT License
---------------------------------------------------------------------------------
-Copyright (c) 2024 Daniel Hieber
+---
+## MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
