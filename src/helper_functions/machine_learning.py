@@ -1,15 +1,14 @@
 # Third Party Libraries
-import torch.nn as nn
-import numpy as np
 from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
+from monai.networks.nets import UNet
+from monai.networks.layers import Norm
 import pytorch_lightning as pl
 import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from sklearn.metrics import jaccard_score, precision_score, recall_score, f1_score
 
 # Local Libraries
-from helper_functions.visualization import save_visualizations
+from src.helper_functions.visualization import save_visualizations
 
 
 class UNetLightning(pl.LightningModule):
@@ -26,7 +25,6 @@ class UNetLightning(pl.LightningModule):
     """
     def __init__(
             self, 
-            model,   
             val_loader, 
             original_files,
             loss_fn=DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3), 
@@ -35,7 +33,7 @@ class UNetLightning(pl.LightningModule):
             visualize_validation=False
         ):
         super(UNetLightning, self).__init__()
-        self.model = model
+        self.model = init_unet_model()
         self.loss_fn = loss_fn
         self.metric_f1 = metric
         self.metric_iou = metric_iou
@@ -139,7 +137,10 @@ class UNetLightning(pl.LightningModule):
         self.metric_iou(test_outputs, labels)
             
     def on_test_epoch_end(self):
-        dice = self.metric.aggregate().item()
+        if self.visualize_validation:
+            save_visualizations(self.model, self.val_loader, self.device, self.current_epoch, self.original_files)
+
+        dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
 
         self.log("test_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
@@ -147,3 +148,16 @@ class UNetLightning(pl.LightningModule):
 
         self.metric_f1.reset()
         self.metric_iou.reset()
+
+
+def init_unet_model():
+    return UNet(
+        spatial_dims=2,
+        in_channels=3,  # 3 for RGB images
+        out_channels=1,  # 1 for binary segmentation
+        channels=(32, 64, 128, 256, 512),
+        strides=(2, 2, 2, 2),
+        num_res_units=2,  # Number of residual units in each layer
+        norm=Norm.BATCH,  # Batch normalization
+        dropout=0.1
+    )
