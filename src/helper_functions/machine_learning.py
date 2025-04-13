@@ -24,10 +24,10 @@ class UNetLightning(pl.LightningModule):
         original_files (list): List of original file paths for visualization.
     """
     def __init__(
-            self, 
-            val_loader, 
+            self,
+            val_loader,
             original_files,
-            loss_fn=DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3), 
+            loss_fn=DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3),
             metric=DiceMetric(include_background=False, reduction="mean_batch", num_classes=2, ignore_empty=False),
             metric_iou=MeanIoU(include_background=False, reduction="mean_batch", ignore_empty=False),
             visualize_validation=False
@@ -69,7 +69,7 @@ class UNetLightning(pl.LightningModule):
         loss = self.loss_fn(outputs, labels)
 
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-       
+
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -90,7 +90,7 @@ class UNetLightning(pl.LightningModule):
 
         self.metric_f1(val_outputs, labels)
         self.metric_iou(val_outputs, labels)
-            
+
         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         return {"val_loss": loss}
@@ -135,7 +135,7 @@ class UNetLightning(pl.LightningModule):
 
         self.metric_f1(test_outputs, labels)
         self.metric_iou(test_outputs, labels)
-            
+
     def on_test_epoch_end(self):
         if self.visualize_validation:
             save_visualizations(self.model, self.val_loader, self.device, self.current_epoch, self.original_files)

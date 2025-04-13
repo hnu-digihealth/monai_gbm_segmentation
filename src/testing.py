@@ -67,9 +67,9 @@ def test_model(
     # Load the trained model from the checkpoint
 
     pl_model = UNetLightning(
-        test_loader, test_files, 
+        test_loader, test_files,
         metric=DiceMetric(include_background=False, reduction="mean", num_classes=2, ignore_empty=False),
-        metric_iou=MeanIoU(include_background=False, reduction="mean", ignore_empty=False),    
+        metric_iou=MeanIoU(include_background=False, reduction="mean", ignore_empty=False),
     )
 
     # Initialize the trainer

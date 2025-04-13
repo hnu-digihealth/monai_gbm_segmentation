@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 
 def setup_path_args(
-        parser: ArgumentParser, 
+        parser: ArgumentParser,
         hub_type: str
     ) -> None:
     """
@@ -28,7 +28,7 @@ def setup_path_args(
         '-mp', '--model_path',
         required=True,
         help='Path of the trained model to export to ONNX. Resulting ONNX model will be saved at same path as ONNX.' \
-            if hub_type == 'export' 
+            if hub_type == 'export'
             else 'Path to where the model should be saved to.'\
             if hub_type == 'train'
             else 'Path to the trained model to test.'

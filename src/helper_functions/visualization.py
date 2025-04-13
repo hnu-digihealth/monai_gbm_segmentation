@@ -41,7 +41,7 @@ def save_visualizations(
 
             for j in range(inputs.shape[0]):
                 #fig, axs = plt.subplots(1, 4, figsize=(24, 6))
-                
+
                 #axs[0].set_title("Original Image")
                 original_img_path = original_files[i *
                                                    inputs.shape[0] + j]['img']
@@ -49,7 +49,7 @@ def save_visualizations(
                 original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB).astype(uint8)
                 #axs[0].imshow(original_img)
                 plt.imshow(original_img)
-                plt.savefig(os.path.join(output_dir, f"1.png"))
+                plt.savefig(os.path.join(output_dir, "1.png"))
 
                 #axs[0].imshow(original_img)
 
@@ -57,7 +57,7 @@ def save_visualizations(
                 img = inputs[j].cpu().permute(1, 2, 0).astype(uint8)
                 #axs[1].imshow(img)
                 fig = plt.imshow(img)
-                plt.savefig(os.path.join(output_dir, f"2.png"))
+                plt.savefig(os.path.join(output_dir, "2.png"))
 
                 # axs[2].set_title("Ground Truth Mask")
                 gt_mask = labels[j][0].cpu().astype(uint8)
@@ -68,13 +68,13 @@ def save_visualizations(
                 print(np.unique(gt_mask))
                 # axs[2].imshow(gt_mask, cmap='gray', vmin=254, vmax=255)
                 fig = plt.imshow(gt_mask, cmap='gray', vmin=254, vmax=255)
-                plt.savefig(os.path.join(output_dir, f"3.png"))
+                plt.savefig(os.path.join(output_dir, "3.png"))
 
                 # axs[3].set_title("Predicted Mask")
                 pred_mask = preds[j][0].cpu().astype(uint8)
                 # axs[3].imshow(pred_mask, cmap='gray', vmin=0, vmax=1)
                 fig = plt.imshow(pred_mask, cmap='gray', vmin=0, vmax=1)
-                plt.savefig(os.path.join(output_dir, f"4.png"))
+                plt.savefig(os.path.join(output_dir, "4.png"))
 
                 # fig.savefig(os.path.join(output_dir, f"sample_{i}_{j}.png"))
                 plt.close(fig)

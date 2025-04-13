@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 
 def setup_monai_args(
-        parser: ArgumentParser, 
+        parser: ArgumentParser,
         hub_type: str
     ) -> None:
     """
@@ -54,7 +54,7 @@ def setup_monai_args(
             type=int,
             help='Batch size to use for training/testing.'
         )
-        
+
         arg_group.add_argument(
             '-s', '--seed',
             type=int,

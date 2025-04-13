@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+exclude = ["build", "dist", ".venv"]
+
+[tool.ruff]
+line-length = 88
+exclude = ["build", "dist", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "W"]
+ignore = ["E501"]

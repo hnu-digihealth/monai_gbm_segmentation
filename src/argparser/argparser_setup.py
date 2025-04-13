@@ -26,10 +26,10 @@ def cli_core():
     # Set description for cli core
     desc = """ Command-line interface for MONAI Histo Segmenter: a simple showcase for histopathological image 
     segmentation with MONAI """
-    
+
     # Setup ArgumentParser interface
     parser = ArgumentParser(prog='MONAI Histo Segmenter', description=desc)
-    
+
     # Add optional core arguments
     parser.add_argument(
         '-v', '--version',

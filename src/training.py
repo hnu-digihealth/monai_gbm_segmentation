@@ -8,8 +8,8 @@ import torch
 from torchvision.io import read_image
 import torchstain
 from monai.transforms import (
-    Compose, LoadImaged, EnsureChannelFirstd, ToTensor, 
-    RandRotate90d, RandFlipd, RandAdjustContrastd, 
+    Compose, LoadImaged, EnsureChannelFirstd, ToTensor,
+    RandRotate90d, RandFlipd, RandAdjustContrastd,
     RandGaussianNoised,
 )
 from monai.data import Dataset, DataLoader
@@ -47,7 +47,7 @@ def train_and_validate_model(
         [x for x in validate_images_path.iterdir() if x.suffix == '.png' and not x.name.startswith('.')])
     validate_labels = sorted(
         [x for x in validate_labels_path.iterdir() if x.suffix == '.png' and not x.name.startswith('.')])
-    
+
     train_files = [{'img': img, 'seg': seg} for img, seg in zip(train_images, train_labels)]
     val_files = [{'img': img, 'seg': seg} for img, seg in zip(validate_images, validate_labels)]
 

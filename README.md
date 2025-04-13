@@ -14,6 +14,19 @@ We highly recommend the creation of a new Python virtual environment with Python
 
 The requirements can be installed via pip by running  `pip install -r requirements.txt`.
 
+## Code quality
+This project uses [Black](https://black.readthedocs.io/) and [Ruff](https://docs.astral.sh/ruff/) for automatic formatting and static code analysis.  
+The configuration is located in [`pyproject.toml`](./pyproject.toml).
+
+# Check lint
+ruff check .
+
+# Correct lint automatically
+ruff check . --fix
+
+# Format code
+black .
+
 ### Training Data Setup
 The model is by default configured to run on binary segmentation on binary labels. Pixels with a value of 1 represent tumor tissue, while all other tissue is labeled with 0. All images should have an input size of 1024 x 1024 pixels and 3 color channels. It is highly recommended to work with `.png` files to allow for reproducible results. <br>
 The images should already be split into 3 folders `train`, `test`, and `validate` with the subfolders `img` and `lbl` in each of those. 
