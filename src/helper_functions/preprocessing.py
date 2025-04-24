@@ -3,8 +3,7 @@ from monai.transforms import MapTransform
 
 
 class HENormalization(MapTransform):
-    """Apply H&E normalization to images.
-    """
+    """Apply H&E normalization to images."""
 
     def __init__(self, keys, normalizer, method):
         super().__init__(keys)

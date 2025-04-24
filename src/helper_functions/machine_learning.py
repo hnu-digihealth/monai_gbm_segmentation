@@ -37,9 +37,7 @@ class UNetLightning(pl.LightningModule):
         self.model = init_unet_model()
 
         self.loss_fn = (
-            loss_fn
-            if loss_fn is not None
-            else DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3)
+            loss_fn if loss_fn is not None else DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3)
         )
         self.metric_f1 = (
             metric
@@ -64,7 +62,6 @@ class UNetLightning(pl.LightningModule):
         self.val_loader = val_loader
         self.original_files = original_files
         self.visualize_validation = visualize_validation
-
 
     def forward(self, x):
         """Forward pass through the model.
@@ -121,8 +118,7 @@ class UNetLightning(pl.LightningModule):
         return {"val_loss": loss}
 
     def on_validation_epoch_end(self):
-        """Actions to perform at the end of the validation epoch.
-        """
+        """Actions to perform at the end of the validation epoch."""
         if self.visualize_validation:
             save_visualizations(
                 self.model,
