@@ -19,12 +19,13 @@ from monai.transforms import (
 )
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
 from src.logging.setup_logger import setup_logger
-from torchvision.io import read_image
+
 
 # Setup logger for training run
 logger = setup_logger("Training")

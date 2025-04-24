@@ -5,11 +5,11 @@ from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
 from monai.networks.layers import Norm
 from monai.networks.nets import UNet
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # Local Libraries
 from src.helper_functions.visualization import save_visualizations
 from src.logging.setup_logger import setup_logger
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 logger = setup_logger(__name__)
 
