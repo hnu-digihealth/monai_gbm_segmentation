@@ -1,14 +1,15 @@
 [tool.black]
 line-length = 120  # Standard recommended line length for Black
-target-version = ["py310", "py311", "py312"]  # Target Python versions used in development/CI
+target-version = ["py310"] # Target Python versions used in development/CI
 exclude = "(build|dist|\\.venv)"  # Exclude virtualenv and build folders
 
 [tool.ruff]
 line-length = 120  # Keep consistent with Black
+src = ["src"]
 exclude = ["build", "dist", ".venv"]  # Exclude common non-source folders
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "W", "I"]  
+select = ["E", "F", "B", "W", "I"]
 # E = pycodestyle (style issues)
 # F = pyflakes (code errors)
 # B = bugbear (common mistakes & best practices)
@@ -17,3 +18,6 @@ select = ["E", "F", "B", "W", "I"]
 
 ignore = ["E501"]  
 # E501 = line too long → ignored because Black handles line wrapping
+
+[tool.ruff.lint.isort]
+known-third-party = ["cv2", "matplotlib", "torch", "numpy", "monai"]

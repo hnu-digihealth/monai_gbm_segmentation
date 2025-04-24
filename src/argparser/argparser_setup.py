@@ -2,16 +2,15 @@
 from argparse import ArgumentParser
 
 # Local Libraries
-from src.argparser.setup_path_args import setup_path_args
 from src.argparser.setup_monai_args import setup_monai_args
+from src.argparser.setup_path_args import setup_path_args
 
 # Global Variables
 VERSION = "0.1.0"
 
 
 def cli_core():
-    """
-    Internal function for Command-Line-Interface (CLI) setup.
+    """Internal function for Command-Line-Interface (CLI) setup.
 
     Parameters
     ----------
@@ -23,16 +22,14 @@ def cli_core():
 
     """
     # Set description for cli core
-    desc = """ Command-line interface for MONAI Histo Segmenter: a simple showcase for histopathological image 
+    desc = """ Command-line interface for MONAI Histo Segmenter: a simple showcase for histopathological image \
     segmentation with MONAI """
 
     # Setup ArgumentParser interface
     parser = ArgumentParser(prog="MONAI Histo Segmenter", description=desc)
 
     # Add optional core arguments
-    parser.add_argument(
-        "-v", "--version", action="version", version="%(prog)s_v" + VERSION
-    )
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s_v" + VERSION)
 
     # Add subparser interface
     subparsers = parser.add_subparsers(
@@ -85,6 +82,4 @@ def __cli_onnx_export(subparsers):
 
 def __setup__help_args(parser: ArgumentParser) -> None:
     arg_group = parser.add_argument_group("Arguments - Other")
-    arg_group.add_argument(
-        "-h", "--help", action="help", help="show this help message and exit"
-    )
+    arg_group.add_argument("-h", "--help", action="help", help="show this help message and exit")

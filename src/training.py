@@ -19,11 +19,12 @@ from monai.transforms import (
 )
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from torchvision.io import read_image
 
 # Local Libraries
-from src.helper_functions.preprocessing import HENormalization
 from src.helper_functions.machine_learning import UNetLightning
+from src.helper_functions.preprocessing import HENormalization
+from torchvision.io import read_image
+
 
 def train_and_validate_model(
     train_image_path: Path,
@@ -43,47 +44,21 @@ def train_and_validate_model(
     validate_labels_path = val_image_path / "lbl"
 
     # setup img/label dicts
-    train_images = sorted(
-        [
-            x
-            for x in train_images_path.iterdir()
-            if x.suffix == ".png" and not x.name.startswith(".")
-        ]
-    )
-    train_labels = sorted(
-        [
-            x
-            for x in train_labels_path.iterdir()
-            if x.suffix == ".png" and not x.name.startswith(".")
-        ]
-    )
+    train_images = sorted([x for x in train_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
+    train_labels = sorted([x for x in train_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
     validate_images = sorted(
-        [
-            x
-            for x in validate_images_path.iterdir()
-            if x.suffix == ".png" and not x.name.startswith(".")
-        ]
+        [x for x in validate_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")]
     )
     validate_labels = sorted(
-        [
-            x
-            for x in validate_labels_path.iterdir()
-            if x.suffix == ".png" and not x.name.startswith(".")
-        ]
+        [x for x in validate_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")]
     )
 
-    train_files = [
-        {"img": img, "seg": seg} for img, seg in zip(train_images, train_labels)
-    ]
-    val_files = [
-        {"img": img, "seg": seg} for img, seg in zip(validate_images, validate_labels)
-    ]
+    train_files = [{"img": img, "seg": seg} for img, seg in zip(train_images, train_labels)]
+    val_files = [{"img": img, "seg": seg} for img, seg in zip(validate_images, validate_labels)]
 
     # setup HE-staining normalizer
     # TODO we use this multiple times -> move to function
-    normalizer = torchstain.normalizers.ReinhardNormalizer(
-        method="modified", backend="torch"
-    )
+    normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
     normalizer.fit(read_image(normalizer_image_path))
 
     # setup transformations
@@ -102,9 +77,7 @@ def train_and_validate_model(
 
     val_transforms = Compose(
         [
-            LoadImaged(
-                keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True
-            ),
+            LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
             HENormalization(keys=["img"], normalizer=normalizer, method="reinhard"),
             EnsureChannelFirstd(keys=["img"]),
             ToTensor(dtype=np.float32),
@@ -121,9 +94,7 @@ def train_and_validate_model(
         assert val_ds[0]["img"].shape == torch.Size([3, 1024, 1024])
         assert val_ds[0]["seg"].shape == torch.Size([1, 1024, 1024])
     except AssertionError:
-        print(
-            "Transformation of Images failed, make sure only images are forwarded to the pipeline"
-        )
+        print("Transformation of Images failed, make sure only images are forwarded to the pipeline")
         exit(1)
 
     # setup data loaders

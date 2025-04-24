@@ -3,8 +3,7 @@ from argparse import ArgumentParser
 
 
 def setup_monai_args(parser: ArgumentParser, hub_type: str) -> None:
-    """
-    Adds the `Arguments - MONAI Setup` group to the provided parser by reference. The required arguments are added based
+    """Adds the `Arguments - MONAI Setup` group to the provided parser by reference. The required arguments are added based
     on the provided `hub_type` argument.
 
     Parameters
@@ -16,6 +15,7 @@ def setup_monai_args(parser: ArgumentParser, hub_type: str) -> None:
     Returns
     -------
     - `None`
+
     """
     # add MONAI argument group
     arg_group = parser.add_argument_group("Arguments - MONAI Setup")

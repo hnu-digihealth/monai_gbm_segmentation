@@ -2,13 +2,14 @@
 import os
 
 # Third Party Libraries
+import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import cv2
-import matplotlib.pyplot as plt
 from monai.data import DataLoader
 from numpy import uint8
+
 
 def save_visualizations(
     model: nn.Module,
@@ -17,8 +18,7 @@ def save_visualizations(
     epoch: int,
     original_files: list,
 ) -> None:
-    """
-    Save visualizations of model predictions.
+    """Save visualizations of model predictions.
 
     Args:
         model (nn.Module): The model.
@@ -26,6 +26,7 @@ def save_visualizations(
         device (torch.device): Device to use for computation.
         epoch (int): Current epoch number.
         original_files (list): List of original files.
+
     """
     model.eval()
     output_dir = f"visualizations_epoch_{epoch}"
@@ -44,9 +45,7 @@ def save_visualizations(
                 # axs[0].set_title("Original Image")
                 original_img_path = original_files[i * inputs.shape[0] + j]["img"]
                 original_img = cv2.imread(original_img_path)
-                original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB).astype(
-                    uint8
-                )
+                original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB).astype(uint8)
                 # axs[0].imshow(original_img)
                 plt.imshow(original_img)
                 plt.savefig(os.path.join(output_dir, "1.png"))

@@ -19,9 +19,7 @@ def export_model(
 
     checkpoint = torch.load(model_path)
     state_dict = checkpoint["state_dict"]
-    new_state_dict = {
-        k[len("model.") :]: v for k, v in state_dict.items() if k.startswith("model.")
-    }
+    new_state_dict = {k[len("model.") :]: v for k, v in state_dict.items() if k.startswith("model.")}
     model.load_state_dict(new_state_dict)
 
     # Set the model to evaluation mode

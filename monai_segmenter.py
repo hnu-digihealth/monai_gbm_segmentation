@@ -3,13 +3,13 @@ from argparse import Namespace
 
 # Third Party Libraries
 from monai.utils.misc import set_determinism
-from torch import set_float32_matmul_precision
 
 # Local Libraries
 from src.argparser.argparser_setup import cli_core
 from src.onnx_export import export_model
 from src.testing import test_model
 from src.training import train_and_validate_model
+from torch import set_float32_matmul_precision
 
 
 def main(args: Namespace):
