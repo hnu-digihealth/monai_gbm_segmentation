@@ -19,12 +19,15 @@ from monai.transforms import (
 )
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
-from torchvision.io import read_image
+from src.logging.setup_logger import setup_logger
 
+# Setup logger for training run
+logger = setup_logger("Training")
 
 def train_and_validate_model(
     train_image_path: Path,
@@ -36,6 +39,11 @@ def train_and_validate_model(
     model_path: Path,
     num_workers: int,
 ):
+    logger.info("Starting training run")
+    logger.info(f"Train image path: {train_image_path}")
+    logger.info(f"Validation image path: {val_image_path}")
+    logger.info(f"Model checkpoint path: {model_path}")
+
     # setup data paths
     # TODO this can easily be moved to utils
     train_images_path = train_image_path / "img"
@@ -56,10 +64,16 @@ def train_and_validate_model(
     train_files = [{"img": img, "seg": seg} for img, seg in zip(train_images, train_labels)]
     val_files = [{"img": img, "seg": seg} for img, seg in zip(validate_images, validate_labels)]
 
+    logger.info(f"Found {len(train_files)} training samples")
+    logger.info(f"Found {len(val_files)} validation samples")
+    logger.info("Initializing HE normalizer")
+
     # setup HE-staining normalizer
     # TODO we use this multiple times -> move to function
     normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
     normalizer.fit(read_image(normalizer_image_path))
+
+    logger.info("Setting up training and validation transformations")
 
     # setup transformations
     train_transforms = Compose(
@@ -95,7 +109,10 @@ def train_and_validate_model(
         assert val_ds[0]["seg"].shape == torch.Size([1, 1024, 1024])
     except AssertionError:
         print("Transformation of Images failed, make sure only images are forwarded to the pipeline")
+        logger.error("Transformation of images failed. Check preprocessing pipeline.")
         exit(1)
+
+    logger.info("Creating DataLoaders")
 
     # setup data loaders
     train_loader = DataLoader(
@@ -116,6 +133,7 @@ def train_and_validate_model(
     )
 
     # model initialization
+    logger.info("Initializing UNetLightning model")
     pl_model = UNetLightning(val_loader, val_files)
 
     trainer = Trainer(
@@ -131,4 +149,6 @@ def train_and_validate_model(
     )
 
     # train the model
+    logger.info("Starting training")
     trainer.fit(pl_model, train_loader, val_loader)
+    logger.info("Training completed")

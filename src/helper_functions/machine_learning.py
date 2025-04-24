@@ -1,6 +1,7 @@
 # Third Party Libraries
 import pytorch_lightning as pl
 import torch
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
 from monai.networks.layers import Norm
@@ -8,7 +9,9 @@ from monai.networks.nets import UNet
 
 # Local Libraries
 from src.helper_functions.visualization import save_visualizations
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from src.logging.setup_logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class UNetLightning(pl.LightningModule):
@@ -34,6 +37,8 @@ class UNetLightning(pl.LightningModule):
         visualize_validation=False,
     ):
         super(UNetLightning, self).__init__()
+        logger.info("Initializing UNetLightning model")
+
         self.model = init_unet_model()
 
         self.loss_fn = (
@@ -73,6 +78,7 @@ class UNetLightning(pl.LightningModule):
             torch.Tensor: Output tensor from the model.
 
         """
+        logger.debug("Running forward pass")
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
@@ -89,7 +95,7 @@ class UNetLightning(pl.LightningModule):
         inputs, labels = batch["img"], batch["seg"]
         outputs = self(inputs)
         loss = self.loss_fn(outputs, labels)
-
+        logger.debug(f"Training batch {batch_idx}, loss: {loss.item():.4f}")
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         return loss
@@ -120,6 +126,7 @@ class UNetLightning(pl.LightningModule):
     def on_validation_epoch_end(self):
         """Actions to perform at the end of the validation epoch."""
         if self.visualize_validation:
+            logger.info(f"Saving validation visualizations for epoch {self.current_epoch}")
             save_visualizations(
                 self.model,
                 self.val_loader,
@@ -129,6 +136,7 @@ class UNetLightning(pl.LightningModule):
             )
         dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
+        logger.info(f"Validation - Dice: {dice:.4f}, IoU: {iou:.4f}")
 
         self.log("val_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("val_iou", iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)
@@ -164,6 +172,7 @@ class UNetLightning(pl.LightningModule):
 
     def on_test_epoch_end(self):
         if self.visualize_validation:
+            logger.info(f"Saving test visualizations for epoch {self.current_epoch}")
             save_visualizations(
                 self.model,
                 self.val_loader,
@@ -174,7 +183,8 @@ class UNetLightning(pl.LightningModule):
 
         dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
-
+        logger.info(f"Test - Dice: {dice:.4f}, IoU: {iou:.4f}")
+        
         self.log("test_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("test_iou", iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 

@@ -3,16 +3,22 @@ from argparse import Namespace
 
 # Third Party Libraries
 from monai.utils.misc import set_determinism
+from torch import set_float32_matmul_precision
 
 # Local Libraries
 from src.argparser.argparser_setup import cli_core
 from src.onnx_export import export_model
 from src.testing import test_model
 from src.training import train_and_validate_model
-from torch import set_float32_matmul_precision
+from src.logging.setup_logger import setup_logger
 
+logger = setup_logger("Segmenter")
 
 def main(args: Namespace):
+    logger.info("Starting MONAI Segmenter")
+    logger.info(f"Selected mode: {args.hub}")
+    logger.info(f"Seed: {args.seed}, Precision mode: medium")
+
     # set MONAI seed for all following random operations
     set_determinism(seed=args.seed)
     # set pytorch float32 matmul precision
@@ -20,6 +26,7 @@ def main(args: Namespace):
 
     match args.hub:
         case "train":
+            logger.info("Launching training pipeline")
             train_and_validate_model(
                 args.train_path,
                 args.val_path,
@@ -31,6 +38,7 @@ def main(args: Namespace):
                 args.num_workers,
             )
         case "test":
+            logger.info("Launching testing pipeline")
             test_model(
                 args.test_path,
                 args.normalizer_image_path,
@@ -39,11 +47,14 @@ def main(args: Namespace):
                 args.model_path,
             )
         case "export":
+            logger.info("Launching ONNX export")
             export_model(args.model_path, args.mode, args.test_path)
 
 
 if __name__ == "__main__":
     parser = cli_core()
     args = parser.parse_args()
+    logger = setup_logger("Segmenter")
+    logger.info(f"Parsed CLI arguments: {args}")
     print(args)
     main(args)

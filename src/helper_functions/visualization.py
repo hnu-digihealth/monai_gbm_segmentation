@@ -10,6 +10,10 @@ import torch.nn as nn
 from monai.data import DataLoader
 from numpy import uint8
 
+# Local Libraries
+from src.logging.setup_logger import setup_logger
+
+logger = setup_logger("Visualization")
 
 def save_visualizations(
     model: nn.Module,
@@ -28,14 +32,17 @@ def save_visualizations(
         original_files (list): List of original files.
 
     """
+    logger.info(f"Saving visualizations for epoch {epoch}")
     model.eval()
     output_dir = f"visualizations_epoch_{epoch}"
     os.makedirs(output_dir, exist_ok=True)
+    logger.info(f"Output directory created: {output_dir}")
     with torch.no_grad():
         for i, batch in enumerate(data_loader):
             inputs = batch["img"].to(device)
             labels = batch["seg"].to(device)
-
+            logger.debug(f"Processing batch {i} with {inputs.shape[0]} samples")
+            
             outputs = model(inputs)
             preds = torch.sigmoid(outputs) > 0.5
 

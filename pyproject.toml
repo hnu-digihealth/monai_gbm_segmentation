@@ -20,4 +20,4 @@ ignore = ["E501"]
 # E501 = line too long → ignored because Black handles line wrapping
 
 [tool.ruff.lint.isort]
-known-third-party = ["cv2", "matplotlib", "torch", "numpy", "monai"]
+known-third-party = ["cv2", "matplotlib", "torch", "numpy", "monai", "torchvision"]
