@@ -35,6 +35,20 @@ To export a trained model with the provided script call it with the `export`-hub
 
 <!-- add something about the parameters and such-->
 
+## Code quality
+This project uses [Black](https://black.readthedocs.io/) and [Ruff](https://docs.astral.sh/ruff/) for automatic formatting and static code analysis.  
+The configuration is located in [`pyproject.toml`](./pyproject.toml).
+
+### Check lint
+Using `ruff check .` in the `src` folder runs ruff over all Python files in the project. This does not change the code and returns if there are any linting errors regarding the ruff configuration.
+
+### Correct lint automatically
+To apply the linting erros found with `ruff check .` you can run it with the `--fix` flag:  `ruff check . --fix.
+This tries to automatically fix all errors found during the checkout.
+
+### Format code
+Finally, `black .` should be used for a final cleanup, as ruff does only contain a partial ruleset.
+
 ----
 ## Cite
 If you use the code provided in this repository please cite following publication: 
