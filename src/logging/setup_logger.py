@@ -3,6 +3,7 @@ import logging
 import os
 from pathlib import Path
 
+
 def setup_logger(name: str, log_file: str | None = None, level: int | None = None) -> logging.Logger:
     # Determine logging level from environment variable or default to INFO
     level_name = os.getenv("LOG_LEVEL", "INFO").upper()

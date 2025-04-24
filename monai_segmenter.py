@@ -3,16 +3,17 @@ from argparse import Namespace
 
 # Third Party Libraries
 from monai.utils.misc import set_determinism
-from torch import set_float32_matmul_precision
 
 # Local Libraries
 from src.argparser.argparser_setup import cli_core
+from src.logging.setup_logger import setup_logger
 from src.onnx_export import export_model
 from src.testing import test_model
 from src.training import train_and_validate_model
-from src.logging.setup_logger import setup_logger
+from torch import set_float32_matmul_precision
 
 logger = setup_logger("Segmenter")
+
 
 def main(args: Namespace):
     logger.info("Starting MONAI Segmenter")

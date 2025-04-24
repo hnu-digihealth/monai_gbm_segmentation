@@ -1,7 +1,6 @@
 # Third Party Libraries
 import pytorch_lightning as pl
 import torch
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
 from monai.networks.layers import Norm
@@ -10,6 +9,7 @@ from monai.networks.nets import UNet
 # Local Libraries
 from src.helper_functions.visualization import save_visualizations
 from src.logging.setup_logger import setup_logger
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 logger = setup_logger(__name__)
 
@@ -184,7 +184,7 @@ class UNetLightning(pl.LightningModule):
         dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
         logger.info(f"Test - Dice: {dice:.4f}, IoU: {iou:.4f}")
-        
+
         self.log("test_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("test_iou", iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 

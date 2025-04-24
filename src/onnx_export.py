@@ -10,6 +10,7 @@ from src.logging.setup_logger import setup_logger
 
 logger = setup_logger("ONNXExport")
 
+
 def export_model(
     model_path: Path,
     mode: str,

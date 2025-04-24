@@ -15,6 +15,7 @@ from src.logging.setup_logger import setup_logger
 
 logger = setup_logger("Visualization")
 
+
 def save_visualizations(
     model: nn.Module,
     data_loader: DataLoader,
@@ -42,7 +43,7 @@ def save_visualizations(
             inputs = batch["img"].to(device)
             labels = batch["seg"].to(device)
             logger.debug(f"Processing batch {i} with {inputs.shape[0]} samples")
-            
+
             outputs = model(inputs)
             preds = torch.sigmoid(outputs) > 0.5
 

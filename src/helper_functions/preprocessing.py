@@ -6,6 +6,7 @@ from src.logging.setup_logger import setup_logger
 
 logger = setup_logger("Preprocessing")
 
+
 class HENormalization(MapTransform):
     """Apply H&E normalization to images."""
 
