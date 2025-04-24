@@ -21,11 +21,9 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchvision.io import read_image
 
-from src.helper_functions.machine_learning import UNetLightning
-
 # Local Libraries
 from src.helper_functions.preprocessing import HENormalization
-
+from src.helper_functions.machine_learning import UNetLightning
 
 def train_and_validate_model(
     train_image_path: Path,

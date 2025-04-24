@@ -1,10 +1,10 @@
 [tool.black]
-line-length = 88  # Standard recommended line length for Black
+line-length = 120  # Standard recommended line length for Black
 target-version = ["py310", "py311", "py312"]  # Target Python versions used in development/CI
 exclude = "(build|dist|\\.venv)"  # Exclude virtualenv and build folders
 
 [tool.ruff]
-line-length = 88  # Keep consistent with Black
+line-length = 120  # Keep consistent with Black
 exclude = ["build", "dist", ".venv"]  # Exclude common non-source folders
 
 [tool.ruff.lint]

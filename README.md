@@ -14,19 +14,6 @@ We highly recommend the creation of a new Python virtual environment with Python
 
 The requirements can be installed via pip by running  `pip install -r requirements.txt`.
 
-## Code quality
-This project uses [Black](https://black.readthedocs.io/) and [Ruff](https://docs.astral.sh/ruff/) for automatic formatting and static code analysis.  
-The configuration is located in [`pyproject.toml`](./pyproject.toml).
-
-# Check lint
-ruff check .
-
-# Correct lint automatically
-ruff check . --fix
-
-# Format code
-black .
-
 ### Training Data Setup
 The model is by default configured to run on binary segmentation on binary labels. Pixels with a value of 1 represent tumor tissue, while all other tissue is labeled with 0. All images should have an input size of 1024 x 1024 pixels and 3 color channels. It is highly recommended to work with `.png` files to allow for reproducible results. <br>
 The images should already be split into 3 folders `train`, `test`, and `validate` with the subfolders `img` and `lbl` in each of those. 
@@ -47,6 +34,20 @@ To run the evaluation of an already trained model with the provided script call 
 To export a trained model with the provided script call it with the `export`-hub. A help page is provided for setup with the `-h`-flag `python monai_segmenter.py export -h`.
 
 <!-- add something about the parameters and such-->
+
+## Code quality
+This project uses [Black](https://black.readthedocs.io/) and [Ruff](https://docs.astral.sh/ruff/) for automatic formatting and static code analysis.  
+The configuration is located in [`pyproject.toml`](./pyproject.toml).
+
+### Check lint
+Using `ruff check .` in the `src` folder runs ruff over all Python files in the project. This does not change the code and returns if there are any linting errors regarding the ruff configuration.
+
+### Correct lint automatically
+To apply the linting erros found with `ruff check .` you can run it with the `--fix` flag:  `ruff check . --fix.
+This tries to automatically fix all errors found during the checkout.
+
+### Format code
+Finally, `black .` should be used for a final cleanup, as ruff does only contain a partial ruleset.
 
 ----
 ## Cite

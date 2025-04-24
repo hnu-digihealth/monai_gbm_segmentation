@@ -1,10 +1,9 @@
 # Python Standard Library
 from argparse import ArgumentParser
 
-from src.argparser.setup_monai_args import setup_monai_args
-
 # Local Libraries
 from src.argparser.setup_path_args import setup_path_args
+from src.argparser.setup_monai_args import setup_monai_args
 
 # Global Variables
 VERSION = "0.1.0"

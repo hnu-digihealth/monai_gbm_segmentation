@@ -1,16 +1,14 @@
 # Python Standard Library
 import os
 
-import cv2
-import matplotlib.pyplot as plt
-
 # Third Party Libraries
 import numpy as np
 import torch
 import torch.nn as nn
+import cv2
+import matplotlib.pyplot as plt
 from monai.data import DataLoader
 from numpy import uint8
-
 
 def save_visualizations(
     model: nn.Module,
