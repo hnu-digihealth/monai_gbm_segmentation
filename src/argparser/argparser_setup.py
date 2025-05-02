@@ -83,3 +83,11 @@ def __cli_onnx_export(subparsers):
 def __setup__help_args(parser: ArgumentParser) -> None:
     arg_group = parser.add_argument_group("Arguments - Other")
     arg_group.add_argument("-h", "--help", action="help", help="show this help message and exit")
+
+    arg_group.add_argument(
+        "--log_level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Logging level (default: INFO)",
+    )

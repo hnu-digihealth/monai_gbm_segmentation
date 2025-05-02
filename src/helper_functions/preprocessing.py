@@ -1,5 +1,13 @@
 # Third Party Libraries
+# Local Libraries
+import logging
+
 from monai.transforms import MapTransform
+
+logger = logging.getLogger("Preprocessing")
+
+
+logger.info("Preprocessing module loaded")
 
 
 class HENormalization(MapTransform):
