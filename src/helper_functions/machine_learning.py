@@ -1,17 +1,18 @@
 # Third Party Libraries
+import logging
+
 import pytorch_lightning as pl
 import torch
 from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
 from monai.networks.layers import Norm
 from monai.networks.nets import UNet
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # Local Libraries
 from src.helper_functions.visualization import save_visualizations
-from src.logging.setup_logger import setup_logger
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-logger = setup_logger(__name__)
+logger = logging.getLogger("MachineLearning")
 
 
 class UNetLightning(pl.LightningModule):
@@ -136,7 +137,7 @@ class UNetLightning(pl.LightningModule):
             )
         dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
-        logger.info(f"Validation - Dice: {dice:.4f}, IoU: {iou:.4f}")
+        logger.info(f"Validation results after epoch {self.current_epoch}: Dice = {dice:.4f}, IoU = {iou:.4f}")
 
         self.log("val_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("val_iou", iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)
@@ -183,7 +184,7 @@ class UNetLightning(pl.LightningModule):
 
         dice = self.metric_f1.aggregate().item()
         iou = self.metric_iou.aggregate().item()
-        logger.info(f"Test - Dice: {dice:.4f}, IoU: {iou:.4f}")
+        logger.info(f"Test results after epoch {self.current_epoch}: Dice = {dice:.4f}, IoU = {iou:.4f}")
 
         self.log("test_dice", dice, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log("test_iou", iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)

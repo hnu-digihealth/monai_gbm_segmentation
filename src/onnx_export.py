@@ -1,4 +1,5 @@
 # Python Standard Library
+import logging
 from pathlib import Path
 
 # Third Party Libraries
@@ -6,9 +7,8 @@ import torch
 
 # Local Libraries
 from src.helper_functions.machine_learning import init_unet_model
-from src.logging.setup_logger import setup_logger
 
-logger = setup_logger("ONNXExport")
+logger = logging.getLogger("ONNXExport")
 
 
 def export_model(

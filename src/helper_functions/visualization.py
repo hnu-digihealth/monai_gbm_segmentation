@@ -1,4 +1,6 @@
 # Python Standard Library
+# Local Libraries
+import logging
 import os
 
 # Third Party Libraries
@@ -10,10 +12,9 @@ import torch.nn as nn
 from monai.data import DataLoader
 from numpy import uint8
 
-# Local Libraries
-from src.logging.setup_logger import setup_logger
+logger = logging.getLogger("Visualization")
 
-logger = setup_logger("Visualization")
+logger.info("Visualization module loaded")
 
 
 def save_visualizations(
@@ -33,7 +34,6 @@ def save_visualizations(
         original_files (list): List of original files.
 
     """
-    logger.info(f"Saving visualizations for epoch {epoch}")
     model.eval()
     output_dir = f"visualizations_epoch_{epoch}"
     os.makedirs(output_dir, exist_ok=True)

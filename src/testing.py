@@ -1,4 +1,5 @@
 # Python Standard Library
+import logging
 from pathlib import Path
 
 # Third Party Libraries
@@ -9,16 +10,14 @@ from monai.data import DataLoader, Dataset
 from monai.metrics import DiceMetric, MeanIoU
 from monai.transforms import Compose, EnsureChannelFirstd, LoadImaged, ToTensor
 from pytorch_lightning import Trainer
-from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
-from src.logging.setup_logger import setup_logger
-
+from torchvision.io import read_image
 
 # Setup logger for test run
-logger = setup_logger("Testing")
+logger = logging.getLogger("Testing")
 
 
 def test_model(

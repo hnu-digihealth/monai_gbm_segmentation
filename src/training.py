@@ -1,4 +1,7 @@
 # Python Standard Library
+import logging
+import time
+from datetime import timedelta
 from pathlib import Path
 from sys import exit
 
@@ -19,16 +22,14 @@ from monai.transforms import (
 )
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
-from src.logging.setup_logger import setup_logger
-
+from torchvision.io import read_image
 
 # Setup logger for training run
-logger = setup_logger("Training")
+logger = logging.getLogger("Training")
 
 
 def train_and_validate_model(
@@ -42,6 +43,11 @@ def train_and_validate_model(
     num_workers: int,
 ):
     logger.info("Starting training run")
+    logger.info(f"Batch size: {batch_size}")
+    logger.info(f"Number of workers: {num_workers}")
+    logger.info(f"Precision: {mode}")
+    logger.info("Loss function: DiceFocalLoss")
+    logger.info("Optimizer: Adam (default Lightning)")
     logger.info(f"Train image path: {train_image_path}")
     logger.info(f"Validation image path: {val_image_path}")
     logger.info(f"Model checkpoint path: {model_path}")
@@ -65,6 +71,10 @@ def train_and_validate_model(
 
     train_files = [{"img": img, "seg": seg} for img, seg in zip(train_images, train_labels)]
     val_files = [{"img": img, "seg": seg} for img, seg in zip(validate_images, validate_labels)]
+    if not train_files:
+        logger.warning("No training samples found - check your input folder.")
+    if not val_files:
+        logger.warning("No validation samples found - validation will be skipped or fail.")
 
     logger.info(f"Found {len(train_files)} training samples")
     logger.info(f"Found {len(val_files)} validation samples")
@@ -139,7 +149,8 @@ def train_and_validate_model(
     pl_model = UNetLightning(val_loader, val_files)
 
     trainer = Trainer(
-        max_epochs=500,
+        #        max_epochs=500,
+        max_epochs=5,
         devices=1,
         accelerator=mode,
         precision=32,
@@ -152,5 +163,25 @@ def train_and_validate_model(
 
     # train the model
     logger.info("Starting training")
+    logger.info(f"Max epochs: {trainer.max_epochs}")
+    start_time = time.time()
     trainer.fit(pl_model, train_loader, val_loader)
+    end_time = time.time()
+    duration = end_time - start_time
+    formatted_duration = str(timedelta(seconds=int(duration)))
+    logger.info(f"Training duration: {formatted_duration}")
+
+    # Dynamically get best metric (if available)
+    best_dice = trainer.callback_metrics.get("val_dice")
+    if best_dice is not None:
+        logger.info(f"Best validation Dice score: {best_dice:.4f}")
+    else:
+        logger.warning("No Dice score found in trainer callback metrics.")
+
+    # Log model checkpoint path (based on ModelCheckpoint callback)
+    checkpoints = trainer.checkpoint_callback.best_model_path
+    if checkpoints:
+        logger.info(f"Best model checkpoint saved to: {checkpoints}")
+    else:
+        logger.warning("No checkpoint was saved during training.")
     logger.info("Training completed")

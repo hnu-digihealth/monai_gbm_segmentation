@@ -7,6 +7,7 @@ exclude = "(build|dist|\\.venv)"  # Exclude virtualenv and build folders
 line-length = 120  # Keep consistent with Black
 src = ["src"]
 exclude = ["build", "dist", ".venv"]  # Exclude common non-source folders
+fix = false
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "W", "I"]
