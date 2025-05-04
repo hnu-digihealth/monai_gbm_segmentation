@@ -4,6 +4,7 @@ import time
 from datetime import timedelta
 from pathlib import Path
 from sys import exit
+from typing import Optional
 
 # Third Party Libraries
 import numpy as np
@@ -22,11 +23,11 @@ from monai.transforms import (
 )
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
-from torchvision.io import read_image
 
 # Setup logger for training run
 logger = logging.getLogger("Training")
@@ -38,10 +39,10 @@ def train_and_validate_model(
     normalizer_image_path: Path,
     batch_size: int,
     mode: str,
-    devices: list | None,
+    devices: Optional[list[int]],
     model_path: Path,
     num_workers: int,
-):
+) -> None:
     logger.info("Starting training run")
     logger.info(f"Batch size: {batch_size}")
     logger.info(f"Number of workers: {num_workers}")

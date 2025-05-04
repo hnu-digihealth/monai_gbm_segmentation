@@ -1,5 +1,4 @@
-# Python Standard Library
-# Local Libraries
+# Python Standard Libraries
 import logging
 import os
 

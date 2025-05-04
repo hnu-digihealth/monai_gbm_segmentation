@@ -4,6 +4,7 @@ from pathlib import Path
 
 import torch
 from monai_segmenter import main
+
 from src.logging.setup_logger import setup_logger
 
 if __name__ == "__main__":

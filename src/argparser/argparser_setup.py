@@ -1,5 +1,5 @@
 # Python Standard Library
-from argparse import ArgumentParser
+from argparse import ArgumentParser, _SubParsersAction
 
 # Local Libraries
 from src.argparser.setup_monai_args import setup_monai_args
@@ -9,7 +9,7 @@ from src.argparser.setup_path_args import setup_path_args
 VERSION = "0.1.0"
 
 
-def cli_core():
+def cli_core() -> ArgumentParser:
     """Internal function for Command-Line-Interface (CLI) setup.
 
     Parameters
@@ -47,7 +47,7 @@ def cli_core():
     return parser
 
 
-def __cli_train(subparsers):
+def __cli_train(subparsers: _SubParsersAction) -> None:
     """ """
     desc = """ Pipeline hub for Training the MONAI model on a tiled dataset """
 
@@ -58,7 +58,7 @@ def __cli_train(subparsers):
     __setup__help_args(parser_train)
 
 
-def __cli_test(subparsers):
+def __cli_test(subparsers: _SubParsersAction) -> None:
     """ """
     desc = """ Pipeline hub for Testing a model trained with the training hub """
 
@@ -69,7 +69,7 @@ def __cli_test(subparsers):
     __setup__help_args(parser_train)
 
 
-def __cli_onnx_export(subparsers):
+def __cli_onnx_export(subparsers: _SubParsersAction) -> None:
     """ """
     desc = """ Pipeline hub for Exporting a model trained with the training hub """
 
