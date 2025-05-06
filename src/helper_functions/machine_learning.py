@@ -1,3 +1,10 @@
+"""
+Model module for MONAI-based UNet using PyTorch Lightning.
+
+Defines the UNetLightning wrapper with integrated loss, metrics, training,
+validation, and optional visualization functionality.
+"""
+
 # Python Standard Libraries
 import logging
 from pathlib import Path
@@ -20,16 +27,16 @@ logger = logging.getLogger("MachineLearning")
 
 
 class UNetLightning(pl.LightningModule):
-    """PyTorch Lightning module for UNet model.
+    """
+    PyTorch Lightning module encapsulating the UNet model, loss, metrics, and evaluation logic.
 
     Args:
-        model (torch.nn.Module): The UNet model.
-        loss_fn (callable): Loss function.
-        metric (callable): Metric for evaluation.
-        data_loader (torch.utils.data.DataLoader): Data loader used to compute test/val metrics.
-            Should be the test or validation data loader, depending on run.
-        original_files (list): List of original file paths for visualization.
-
+        val_loader (DataLoader): Validation or test data loader (used for metrics and visualization).
+        original_files (list[Path]): Original file paths used for saving visualizations.
+        loss_fn (callable, optional): Loss function to use. Defaults to DiceFocalLoss.
+        metric (callable, optional): Metric for F1/Dice evaluation. Defaults to MONAI DiceMetric.
+        metric_iou (callable, optional): Metric for IoU evaluation. Defaults to MONAI MeanIoU.
+        visualize_validation (bool): If True, saves validation visualizations using `save_visualizations()`.
     """
 
     def __init__(
@@ -44,6 +51,7 @@ class UNetLightning(pl.LightningModule):
         super(UNetLightning, self).__init__()
         logger.info("Initializing UNetLightning model")
 
+        # Initialize model and components
         self.model = init_unet_model()
 
         self.loss_fn = (

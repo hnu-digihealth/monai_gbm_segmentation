@@ -1,3 +1,10 @@
+"""
+Training module for MONAI-based GBM segmentation.
+
+This script sets up data pipelines, applies H&E normalization, defines
+data augmentation, and trains a UNet model using PyTorch Lightning.
+"""
+
 # Python Standard Library
 import logging
 import time
@@ -43,6 +50,22 @@ def train_and_validate_model(
     model_path: Path,
     num_workers: int,
 ) -> None:
+    """
+    Train and validate the UNet segmentation model.
+
+    Args:
+        train_image_path (Path): Path to the training images and labels.
+        val_image_path (Path): Path to the validation images and labels.
+        normalizer_image_path (Path): Path to the reference image for stain normalization.
+        batch_size (int): Batch size used during training.
+        mode (str): Precision mode ('16-mixed' or '32').
+        devices: Optional[list[int]] List of GPU device IDs or None to use CPU.
+        model_path (Path): Directory to save model checkpoints.
+        num_workers (int): Number of subprocesses for data loading.
+
+    Returns:
+        None
+    """
     logger.info("Starting training run")
     logger.info(f"Batch size: {batch_size}")
     logger.info(f"Number of workers: {num_workers}")
@@ -53,14 +76,14 @@ def train_and_validate_model(
     logger.info(f"Validation image path: {val_image_path}")
     logger.info(f"Model checkpoint path: {model_path}")
 
-    # setup data paths
+    # Define paths to image and label subdirectories
     # TODO this can easily be moved to utils
     train_images_path = train_image_path / "img"
     train_labels_path = train_image_path / "lbl"
     validate_images_path = val_image_path / "img"
     validate_labels_path = val_image_path / "lbl"
 
-    # setup img/label dicts
+    # Collect all .png images (ignoring hidden files)
     train_images = sorted([x for x in train_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
     train_labels = sorted([x for x in train_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
     validate_images = sorted(
@@ -81,14 +104,14 @@ def train_and_validate_model(
     logger.info(f"Found {len(val_files)} validation samples")
     logger.info("Initializing HE normalizer")
 
-    # setup HE-staining normalizer
+    # Initialize stain normalizer
     # TODO we use this multiple times -> move to function
     normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
     normalizer.fit(read_image(normalizer_image_path))
 
     logger.info("Setting up training and validation transformations")
 
-    # setup transformations
+    # Define MONAI transforms for preprocessing and augmentation
     train_transforms = Compose(
         [
             LoadImaged(keys=["img", "seg"], dtype=np.int16, ensure_channel_first=True),
@@ -145,7 +168,7 @@ def train_and_validate_model(
         pin_memory=torch.cuda.is_available(),
     )
 
-    # model initialization
+    # Define model, callbacks and trainer
     logger.info("Initializing UNetLightning model")
     pl_model = UNetLightning(val_loader, val_files)
 

@@ -1,21 +1,24 @@
+"""
+Argument group setup for MONAI-related CLI arguments.
+
+Adds arguments for training mode, device selection, batch size, and worker threads.
+"""
+
 # Python Standard Library
 from argparse import ArgumentParser
 
 
 def setup_monai_args(parser: ArgumentParser, hub_type: str) -> None:
-    """Adds the `Arguments - MONAI Setup` group to the provided parser by reference. The required arguments are added based
+    """
+    Adds the `Arguments - MONAI Setup` group to the provided parser by reference. The required arguments are added based
     on the provided `hub_type` argument.
 
-    Parameters
-    ----------
-    - `parser: ArgumentParser` - The ArgumentParser to add the argument group to
-    - `hub_type: str`- Hub type to determine the required arguments to add to the group. Should be one of
-        `train`, `test`, and `export`.
+    Args:
+        parser (ArgumentParser): The CLI parser to extend.
+        hub_type (str): Application mode ('train', 'test', 'export') to determine which arguments are relevant.
 
-    Returns
-    -------
-    - `None`
-
+    Returns:
+        None
     """
     # add MONAI argument group
     arg_group = parser.add_argument_group("Arguments - MONAI Setup")

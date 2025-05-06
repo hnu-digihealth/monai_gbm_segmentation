@@ -1,3 +1,9 @@
+"""
+Only for development.
+Demo module that starts the training process on a test basis with the minimum data set that is still saved locally in a subfolder.
+Should be deleted before publication.
+"""
+
 import shutil
 from argparse import Namespace
 from pathlib import Path

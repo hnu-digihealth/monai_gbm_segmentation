@@ -1,3 +1,9 @@
+"""
+Main entrypoint for the MONAI GBM segmentation CLI.
+
+Parses command-line arguments and dispatches to training, testing, or ONNX export.
+"""
+
 # Python Standard Library
 import logging
 from argparse import Namespace
@@ -15,6 +21,15 @@ from src.training import train_and_validate_model
 
 
 def main(args: Namespace, logger: logging.Logger) -> None:
+    """
+    Main pipeline dispatcher.
+
+    Args:
+        args (Namespace): Parsed CLI arguments.
+        logger (Logger): Configured logger instance.
+
+    Routes execution to the appropriate pipeline step based on `args.hub`.
+    """
     logger.info("Starting MONAI Segmenter")
     logger.info(f"Selected mode: {args.hub}")
     logger.info(f"Seed: {args.seed}, Precision mode: medium")

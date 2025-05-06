@@ -1,3 +1,10 @@
+"""
+Visualization module for GBM segmentation.
+
+Contains utility to save predicted segmentations as side-by-side image comparisons
+for model evaluation and debugging.
+"""
+
 # Python Standard Libraries
 import logging
 import os
@@ -23,15 +30,18 @@ def save_visualizations(
     epoch: int,
     original_files: list,
 ) -> None:
-    """Save visualizations of model predictions.
+    """
+    Generate and save prediction visualizations from a model.
 
     Args:
-        model (nn.Module): The model.
-        data_loader (DataLoader): DataLoader for the data.
-        device (torch.device): Device to use for computation.
-        epoch (int): Current epoch number.
-        original_files (list): List of original files.
+        model (nn.Module): Trained PyTorch model for segmentation.
+        data_loader (DataLoader): DataLoader providing input and ground truth.
+        device (torch.device): Device on which to run inference.
+        epoch (int): Epoch number (used in output folder name).
+        original_files (list): List of dictionaries with paths to original input files (used for image loading).
 
+    Saves:
+        PNG images comparing original image, model input, prediction, and ground truth.
     """
     model.eval()
     output_dir = f"visualizations_epoch_{epoch}"
