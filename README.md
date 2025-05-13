@@ -12,9 +12,9 @@ The project is configured for **binary segmentation**. To adapt it for multi-cla
 The main entrypoint for running the code is the command-line script `monai_segmenter.py`.  
 It was successfully tested on Windows, Linux, and macOS (limited test coverage – bugs may occur).
 
-Use the `-h` flag to display available options for each mode:
+Use the `-h` flag to display available options for the script and each of its modes:
 ```bash
-python monai_segmenter.py train -h
+python monai_segmenter.py [train|test|export] -h
 ```
 
 ---
@@ -27,7 +27,7 @@ The requirements can be installed via pip by running  `pip install -r requiremen
 ---
 
 ### Training Data Setup
-The model is by default configured to run on binary segmentation on binary labels. Pixels with a value of 1 represent tumor tissue, while all other tissue is labeled with 0. All images should have an input size of 1024 x 1024 pixels and 3 color channels. It is highly recommended to work with `.png` files to allow for reproducible results.
+The model is by default configured to run binary segmentation on binary labels. Pixels with a value of 1 represent tumor tissue, while all other tissue is labeled with 0. All images should have an input size of 1024 x 1024 pixels and 3 color channels. It is highly recommended to work with `.png` files to allow for reproducible results.
 
 The images should already be split into 3 folders `train`, `test`, and `validate` with the subfolders `img` and `lbl` in each of those. 
 
@@ -68,8 +68,6 @@ These are the most important CLI arguments (more via `-h`):
 - `--num_workers`: Number of parallel DataLoader workers (default: 4)
 
 ---
-
-### CLI Commands
 
 ### Train a Model
 To run the training of a new model with the provided script call it with the `train`-hub. A help page is provided for setup with the `-h`-flag `python monai_segmenter.py train -h`.
