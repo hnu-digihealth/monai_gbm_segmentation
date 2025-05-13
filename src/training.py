@@ -39,12 +39,9 @@ from src.helper_functions.preprocessing import HENormalization
 # Setup logger for training run
 logger = logging.getLogger("Training")
 
+
 def setup_dataloaders(
-    train_image_path: Path,
-    val_image_path: Path,
-    normalizer_image_path: Path,
-    batch_size: int,
-    num_workers: int
+    train_image_path: Path, val_image_path: Path, normalizer_image_path: Path, batch_size: int, num_workers: int
 ) -> tuple[DataLoader, DataLoader]:
     """
     Prepares DataLoaders for training and validation.
@@ -82,23 +79,27 @@ def setup_dataloaders(
 
         # Define transformation pipeline depending on mode
         if transform_type == "train":
-            transforms = Compose([
-                LoadImaged(keys=["img", "seg"], dtype=np.int16, ensure_channel_first=True),
-                RandAdjustContrastd(keys=["img"], prob=0.5, gamma=(0.7, 1.3)),
-                RandGaussianNoised(keys=["img"], prob=0.5, mean=0.0, std=0.01),
-                HENormalization(keys=["img"], normalizer=raw_normalizer, method="reinhard"),
-                EnsureChannelFirstd(keys=["img"]),
-                RandFlipd(keys=["img", "seg"], prob=0.5, spatial_axis=0),
-                RandRotate90d(keys=["img", "seg"], prob=0.5),
-                ToTensor(dtype=np.float32),
-            ])
+            transforms = Compose(
+                [
+                    LoadImaged(keys=["img", "seg"], dtype=np.int16, ensure_channel_first=True),
+                    RandAdjustContrastd(keys=["img"], prob=0.5, gamma=(0.7, 1.3)),
+                    RandGaussianNoised(keys=["img"], prob=0.5, mean=0.0, std=0.01),
+                    HENormalization(keys=["img"], normalizer=raw_normalizer, method="reinhard"),
+                    EnsureChannelFirstd(keys=["img"]),
+                    RandFlipd(keys=["img", "seg"], prob=0.5, spatial_axis=0),
+                    RandRotate90d(keys=["img", "seg"], prob=0.5),
+                    ToTensor(dtype=np.float32),
+                ]
+            )
         else:
-            transforms = Compose([
-                LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
-                HENormalization(keys=["img"], normalizer=raw_normalizer, method="reinhard"),
-                EnsureChannelFirstd(keys=["img"]),
-                ToTensor(dtype=np.float32),
-            ])
+            transforms = Compose(
+                [
+                    LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
+                    HENormalization(keys=["img"], normalizer=raw_normalizer, method="reinhard"),
+                    EnsureChannelFirstd(keys=["img"]),
+                    ToTensor(dtype=np.float32),
+                ]
+            )
 
         return Dataset(data=data_dicts, transform=transforms)
 
@@ -136,6 +137,7 @@ def setup_dataloaders(
 
     return train_loader, val_loader
 
+
 def configure_trainer(model_path: Path, devices: Optional[list], mode: str) -> Trainer:
     """
     Configures the PyTorch Lightning Trainer.
@@ -152,8 +154,8 @@ def configure_trainer(model_path: Path, devices: Optional[list], mode: str) -> T
     if isinstance(devices, str):
         try:
             devices = [int(devices)]
-        except ValueError:
-            raise ValueError(f"Invalid device string: {devices}")
+        except ValueError as err:
+            raise ValueError(f"Invalid device string: {devices}") from err
 
     return Trainer(
         max_epochs=5,
@@ -166,6 +168,7 @@ def configure_trainer(model_path: Path, devices: Optional[list], mode: str) -> T
         ],
         default_root_dir=model_path,
     )
+
 
 def run_training(model: UNetLightning, trainer: Trainer, train_loader: DataLoader, val_loader: DataLoader) -> None:
     """
@@ -195,6 +198,7 @@ def run_training(model: UNetLightning, trainer: Trainer, train_loader: DataLoade
         logger.info(f"Best model checkpoint saved to: {checkpoints}")
     else:
         logger.warning("No checkpoint was saved during training.")
+
 
 def train_and_validate_model(
     train_image_path: Path,

@@ -26,11 +26,9 @@ from src.helper_functions.preprocessing import HENormalization
 # Setup logger
 logger = logging.getLogger("Testing")
 
+
 def setup_test_dataloader(
-    test_image_path: Path,
-    normalizer_image_path: Path,
-    batch_size: int,
-    num_workers: int
+    test_image_path: Path, normalizer_image_path: Path, batch_size: int, num_workers: int
 ) -> tuple[DataLoader, list]:
     """
     Prepares the DataLoader for testing.
@@ -57,12 +55,14 @@ def setup_test_dataloader(
     normalizer.fit(read_image(normalizer_image_path))
 
     # Compose transformations including normalization
-    test_transforms = Compose([
-        LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
-        HENormalization(keys=["img"], normalizer=normalizer, method="reinhard"),
-        EnsureChannelFirstd(keys=["img"]),
-        ToTensor(dtype=np.float32),
-    ])
+    test_transforms = Compose(
+        [
+            LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
+            HENormalization(keys=["img"], normalizer=normalizer, method="reinhard"),
+            EnsureChannelFirstd(keys=["img"]),
+            ToTensor(dtype=np.float32),
+        ]
+    )
 
     # Create MONAI dataset and apply transforms
     test_ds = Dataset(data=test_files, transform=test_transforms)
@@ -85,6 +85,7 @@ def setup_test_dataloader(
     )
 
     return test_loader, test_files
+
 
 def test_model(
     test_image_path: Path,
@@ -109,9 +110,7 @@ def test_model(
     logger.info(f"Model checkpoint path: {model_path}")
 
     # Prepare data and transforms
-    test_loader, test_files = setup_test_dataloader(
-        test_image_path, normalizer_image_path, batch_size, num_workers
-    )
+    test_loader, test_files = setup_test_dataloader(test_image_path, normalizer_image_path, batch_size, num_workers)
 
     # Instantiate model with metrics
     logger.info("Loading trained model from checkpoint")

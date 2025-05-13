@@ -18,6 +18,7 @@ from src.helper_functions.machine_learning import init_unet_model
 # Setup logger
 logger = logging.getLogger("ONNXExport")
 
+
 # Load weights from PyTorch Lightning checkpoint and strip prefix if needed
 def load_checkpoint_weights(model_path: Path) -> dict:
     """
@@ -31,7 +32,8 @@ def load_checkpoint_weights(model_path: Path) -> dict:
     """
     checkpoint = torch.load(model_path)
     state_dict = checkpoint["state_dict"]
-    return {k[len("model."):] if k.startswith("model.") else k: v for k, v in state_dict.items()}
+    return {k[len("model.") :] if k.startswith("model.") else k: v for k, v in state_dict.items()}
+
 
 # Initialize and prepare model for ONNX export (weights, device, eval mode)
 def prepare_model(model_path: Path) -> torch.nn.Module:
@@ -55,6 +57,7 @@ def prepare_model(model_path: Path) -> torch.nn.Module:
     model.to(device)
     model.eval()
     return model
+
 
 def export_model(
     model_path: Path,
