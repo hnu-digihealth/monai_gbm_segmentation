@@ -1,20 +1,24 @@
+"""
+Argument group setup for path-related CLI arguments.
+
+Adds arguments for model paths, normalizer image, and dataset locations depending on the pipeline step.
+"""
+
 # Python Standard Library
 from argparse import ArgumentParser
 
 
 def setup_path_args(parser: ArgumentParser, hub_type: str) -> None:
-    """Adds the `Arguments - Path Setup` group to the provided parser by reference. The required paths are added based on
+    """
+    Adds the `Arguments - Path Setup` group to the provided parser by reference. The required paths are added based on
     the provided `hub_type` argument.
 
-    Parameters
-    ----------
-    - `parser: ArgumentParser` - The ArgumentParser to add the argument group to
-    - `hub_type: str`- Hub type to determine the required arguments to add to the group. Should be one of
-        `train`, `test`, and `export`.
+    Args:
+        parser (ArgumentParser): The CLI parser to extend.
+        hub_type (str): Mode ('train', 'test', 'export') to determine which arguments are needed.
 
-    Returns
-    -------
-    - `None`
+    Returns:
+        None
 
     """
     # add IO argument group

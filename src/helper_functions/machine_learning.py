@@ -1,50 +1,63 @@
-# Third Party Libraries
-import logging
+"""
+Model module for MONAI-based UNet using PyTorch Lightning.
 
+Defines the UNetLightning wrapper with integrated loss, metrics, training,
+validation, and optional visualization functionality.
+"""
+
+# Python Standard Libraries
+import logging
+from pathlib import Path
+from typing import Any
+
+# Third Party Libraries
 import pytorch_lightning as pl
 import torch
 from monai.losses import DiceFocalLoss
 from monai.metrics import DiceMetric, MeanIoU
 from monai.networks.layers import Norm
 from monai.networks.nets import UNet
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
 
 # Local Libraries
 from src.helper_functions.visualization import save_visualizations
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 logger = logging.getLogger("MachineLearning")
 
 
 class UNetLightning(pl.LightningModule):
-    """PyTorch Lightning module for UNet model.
+    """
+    PyTorch Lightning module encapsulating the UNet model, loss, metrics, and evaluation logic.
 
     Args:
-        model (torch.nn.Module): The UNet model.
-        loss_fn (callable): Loss function.
-        metric (callable): Metric for evaluation.
-        data_loader (torch.utils.data.DataLoader): Data loader used to compute test/val metrics.
-            Should be the test or validation data loader, depending on run.
-        original_files (list): List of original file paths for visualization.
-
+        val_loader (DataLoader): Validation or test data loader (used for metrics and visualization).
+        original_files (list[Path]): Original file paths used for saving visualizations.
+        loss_fn (callable, optional): Loss function to use. Defaults to DiceFocalLoss.
+        metric (callable, optional): Metric for F1/Dice evaluation. Defaults to MONAI DiceMetric.
+        metric_iou (callable, optional): Metric for IoU evaluation. Defaults to MONAI MeanIoU.
+        visualize_validation (bool): If True, saves validation visualizations using `save_visualizations()`.
     """
 
     def __init__(
         self,
-        val_loader,
-        original_files,
-        loss_fn=None,
-        metric=None,
-        metric_iou=None,
-        visualize_validation=False,
-    ):
+        val_loader: DataLoader,
+        original_files: list[dict[str, Path]],
+        loss_fn: torch.nn.Module | None = None,
+        metric: DiceMetric | None = None,
+        metric_iou: MeanIoU | None = None,
+        visualize_validation: bool = False,
+    ) -> None:
         super(UNetLightning, self).__init__()
         logger.info("Initializing UNetLightning model")
 
+        # Initialize model and components
         self.model = init_unet_model()
 
         self.loss_fn = (
             loss_fn if loss_fn is not None else DiceFocalLoss(sigmoid=True, lambda_dice=0.7, lambda_focal=0.3)
         )
+
         self.metric_f1 = (
             metric
             if metric is not None
@@ -55,6 +68,7 @@ class UNetLightning(pl.LightningModule):
                 ignore_empty=False,
             )
         )
+
         self.metric_iou = (
             metric_iou
             if metric_iou is not None
@@ -69,7 +83,7 @@ class UNetLightning(pl.LightningModule):
         self.original_files = original_files
         self.visualize_validation = visualize_validation
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the model.
 
         Args:
@@ -82,7 +96,7 @@ class UNetLightning(pl.LightningModule):
         logger.debug("Running forward pass")
         return self.model(x)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: dict[str, torch.Tensor], batch_idx: int) -> torch.Tensor:
         """Training step for a single batch.
 
         Args:
@@ -101,7 +115,7 @@ class UNetLightning(pl.LightningModule):
 
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: dict[str, torch.Tensor], batch_idx: int) -> dict[str, float]:
         """Validation step for a single batch.
 
         Args:
@@ -124,7 +138,7 @@ class UNetLightning(pl.LightningModule):
 
         return {"val_loss": loss}
 
-    def on_validation_epoch_end(self):
+    def on_validation_epoch_end(self) -> None:
         """Actions to perform at the end of the validation epoch."""
         if self.visualize_validation:
             logger.info(f"Saving validation visualizations for epoch {self.current_epoch}")
@@ -145,7 +159,7 @@ class UNetLightning(pl.LightningModule):
         self.metric_f1.reset()
         self.metric_iou.reset()
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> dict[str, Any]:
         """Configure the optimizers and learning rate scheduler.
 
         Returns:
@@ -163,7 +177,7 @@ class UNetLightning(pl.LightningModule):
             },
         }
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: dict[str, torch.Tensor], batch_idx: int) -> dict[str, float]:
         inputs, labels = batch["img"], batch["seg"]
         outputs = self(inputs)
         test_outputs = torch.sigmoid(outputs) > 0.5
@@ -171,7 +185,7 @@ class UNetLightning(pl.LightningModule):
         self.metric_f1(test_outputs, labels)
         self.metric_iou(test_outputs, labels)
 
-    def on_test_epoch_end(self):
+    def on_test_epoch_end(self) -> None:
         if self.visualize_validation:
             logger.info(f"Saving test visualizations for epoch {self.current_epoch}")
             save_visualizations(
@@ -193,7 +207,7 @@ class UNetLightning(pl.LightningModule):
         self.metric_iou.reset()
 
 
-def init_unet_model():
+def init_unet_model() -> UNet:
     return UNet(
         spatial_dims=2,
         in_channels=3,  # 3 for RGB images

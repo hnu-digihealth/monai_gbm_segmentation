@@ -1,3 +1,10 @@
+"""
+Testing module for MONAI-based GBM segmentation.
+
+This script loads a trained UNet model and evaluates it on a test dataset
+using MONAI metrics such as Dice score and Mean IoU.
+"""
+
 # Python Standard Library
 import logging
 from pathlib import Path
@@ -10,13 +17,13 @@ from monai.data import DataLoader, Dataset
 from monai.metrics import DiceMetric, MeanIoU
 from monai.transforms import Compose, EnsureChannelFirstd, LoadImaged, ToTensor
 from pytorch_lightning import Trainer
+from torchvision.io import read_image
 
 # Local Libraries
 from src.helper_functions.machine_learning import UNetLightning
 from src.helper_functions.preprocessing import HENormalization
-from torchvision.io import read_image
 
-# Setup logger for test run
+# Setup logger
 logger = logging.getLogger("Testing")
 
 
@@ -27,6 +34,19 @@ def test_model(
     num_workers: int,
     model_path: Path,
 ) -> None:
+    """
+    Evaluate a trained model on test data using MONAI metrics.
+
+    Args:
+        test_image_path (Path): Path to test image and label directories.
+        normalizer_image_path (Path): Path to the reference image for H&E normalization.
+        batch_size (int): Batch size for evaluation.
+        num_workers (int): Number of subprocesses for DataLoader.
+        model_path (Path): Path to the trained model checkpoint.
+
+    Returns:
+        None
+    """
     logger.info("Starting test run")
     logger.info(f"Test image path: {test_image_path}")
     logger.info(f"Normalizer image path: {normalizer_image_path}")
@@ -34,14 +54,14 @@ def test_model(
     test_images_path = test_image_path / "img"
     test_labels_path = test_image_path / "lbl"
 
-    # setup img/label dicts
+    # Load image and label file paths
     test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
     test_labels = sorted([x for x in test_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
     logger.info(f"Found {len(test_images)} test images")
 
     test_files = [{"img": img, "seg": seg} for img, seg in zip(test_images, test_labels)]
 
-    # setup HE-staining normalizer
+    # Setup HE-staining normalization
     logger.info("Initializing stain normalizer (Reinhard)")
     normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
     normalizer.fit(read_image(normalizer_image_path))
