@@ -62,10 +62,18 @@ def setup_path_args(parser: ArgumentParser, hub_type: str) -> None:
         )
 
     # testing and export need test folder
-    if hub_type != "train":
+    if hub_type == "export":
+        arg_group.add_argument(
+            "-tip",
+            "--test_image_path",
+            required=False,
+            help="Path to a single test image or a folder of containing multiple test images used for ONNX verification."
+            " Only requires the input image and no labels.",
+        )
+    elif hub_type == "test":
         arg_group.add_argument(
             "-tp",
             "--test_path",
-            required=True if hub_type == "test" else False,
-            help="Path to the test images folder. The folder should contain a img and lbl subfolder.",
+            required=True,
+            help="Path to the test dataset folder. Must contain 'img' and 'lbl' subfolders.",
         )
