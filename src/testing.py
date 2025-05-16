@@ -27,6 +27,66 @@ from src.helper_functions.preprocessing import HENormalization
 logger = logging.getLogger("Testing")
 
 
+def setup_test_dataloader(
+    test_image_path: Path, normalizer_image_path: Path, batch_size: int, num_workers: int
+) -> tuple[DataLoader, list]:
+    """
+    Prepares the DataLoader for testing.
+
+    Args:
+        test_image_path (Path): Directory with 'img' and 'lbl' subfolders.
+        normalizer_image_path (Path): Reference image for normalization.
+        batch_size (int): Batch size.
+        num_workers (int): Number of subprocesses for data loading.
+
+    Returns:
+        tuple[DataLoader, list]: Test DataLoader and list of test file dictionaries.
+    """
+    # Collect image and label file paths
+    test_images_path = test_image_path / "img"
+    test_labels_path = test_image_path / "lbl"
+
+    test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
+    test_labels = sorted([x for x in test_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
+    test_files = [{"img": img, "seg": seg} for img, seg in zip(test_images, test_labels)]
+
+    # Initialize and fit the Reinhard stain normalizer
+    normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
+    normalizer.fit(read_image(normalizer_image_path))
+
+    # Compose transformations including normalization
+    test_transforms = Compose(
+        [
+            LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
+            HENormalization(keys=["img"], normalizer=normalizer, method="reinhard"),
+            EnsureChannelFirstd(keys=["img"]),
+            ToTensor(dtype=np.float32),
+        ]
+    )
+
+    # Create MONAI dataset and apply transforms
+    test_ds = Dataset(data=test_files, transform=test_transforms)
+
+    # Sanity check: ensure transformed image shapes are as expected
+    try:
+        assert test_ds[0]["img"].shape == torch.Size([3, 1024, 1024])
+        assert test_ds[0]["seg"].shape == torch.Size([1, 1024, 1024])
+    except AssertionError:
+        logger.error("Image transformation check failed. Exiting.")
+        exit(1)
+
+    # Create DataLoader from dataset
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        persistent_workers=True,
+        pin_memory=torch.cuda.is_available(),
+    )
+
+    return test_loader, test_files
+
+
 def test_model(
     test_image_path: Path,
     normalizer_image_path: Path,
@@ -43,61 +103,16 @@ def test_model(
         batch_size (int): Batch size for evaluation.
         num_workers (int): Number of subprocesses for DataLoader.
         model_path (Path): Path to the trained model checkpoint.
-
-    Returns:
-        None
     """
     logger.info("Starting test run")
     logger.info(f"Test image path: {test_image_path}")
     logger.info(f"Normalizer image path: {normalizer_image_path}")
     logger.info(f"Model checkpoint path: {model_path}")
-    test_images_path = test_image_path / "img"
-    test_labels_path = test_image_path / "lbl"
 
-    # Load image and label file paths
-    test_images = sorted([x for x in test_images_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
-    test_labels = sorted([x for x in test_labels_path.iterdir() if x.suffix == ".png" and not x.name.startswith(".")])
-    logger.info(f"Found {len(test_images)} test images")
+    # Prepare data and transforms
+    test_loader, test_files = setup_test_dataloader(test_image_path, normalizer_image_path, batch_size, num_workers)
 
-    test_files = [{"img": img, "seg": seg} for img, seg in zip(test_images, test_labels)]
-
-    # Setup HE-staining normalization
-    logger.info("Initializing stain normalizer (Reinhard)")
-    normalizer = torchstain.normalizers.ReinhardNormalizer(method="modified", backend="torch")
-    normalizer.fit(read_image(normalizer_image_path))
-
-    # setup transformation composition and create dataset + data loader
-    logger.info("Setting up test transformations")
-    test_transforms = Compose(
-        [
-            LoadImaged(keys=["img", "seg"], dtype=np.float32, ensure_channel_first=True),
-            HENormalization(keys=["img"], normalizer=normalizer, method="reinhard"),
-            EnsureChannelFirstd(keys=["img"]),
-            ToTensor(dtype=np.float32),
-        ]
-    )
-
-    # setup data loaders
-    test_ds = Dataset(data=test_files, transform=test_transforms)
-    test_loader = DataLoader(
-        test_ds,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        persistent_workers=True,
-        pin_memory=torch.cuda.is_available(),
-    )
-    logger.info(f"DataLoader created with batch size {batch_size}")
-
-    # assert the images are correctly transformed
-    try:
-        assert test_ds[0]["img"].shape == torch.Size([3, 1024, 1024])
-        assert test_ds[0]["seg"].shape == torch.Size([1, 1024, 1024])
-    except AssertionError:
-        print("Transformation of Images failed, make sure only images are forwarded to the pipeline")
-        logger.error("Image transformation check failed. Exiting.")
-        exit(1)
-
-    # Load the trained model from the checkpoint
+    # Instantiate model with metrics
     logger.info("Loading trained model from checkpoint")
     pl_model = UNetLightning(
         test_loader,
@@ -111,10 +126,8 @@ def test_model(
         metric_iou=MeanIoU(include_background=False, reduction="mean", ignore_empty=False),
     )
 
-    # Initialize the trainer
+    # Initialize PyTorch Lightning Trainer
     logger.info("Starting model evaluation")
     trainer = Trainer(devices=1, accelerator="gpu" if torch.cuda.is_available() else "cpu")
-
-    # Evaluate the model on the test data
     trainer.test(pl_model, test_loader, ckpt_path=model_path)
     logger.info("Test run completed successfully")
