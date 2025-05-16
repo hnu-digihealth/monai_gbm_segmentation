@@ -23,24 +23,16 @@ def setup_monai_args(parser: ArgumentParser, hub_type: str) -> None:
     # add MONAI argument group
     arg_group = parser.add_argument_group("Arguments - MONAI Setup")
 
-    arg_group.add_argument(
-        "-m",
-        "--mode",
-        required=True,
-        default="gpu",
-        choices=["gpu", "cpu"],
-        help="If the ML should use `gpu` or `cpu` mode.",
-    )
-
-    arg_group.add_argument(
-        "-d",
-        "--devices",
-        required=False,
-        default=None,
-        help="The GPU devices to use. Only relevant if mode is `gpu`. By default all available devices are used.",
-    )
-
     if hub_type != "export":
+        arg_group.add_argument(
+            "-m",
+            "--mode",
+            required=True,
+            default="gpu",
+            choices=["gpu", "cpu"],
+            help="If the ML should use `gpu` or `cpu` mode. The default is `gpu`.",
+        )
+
         arg_group.add_argument(
             "-w",
             "--num_workers",
@@ -66,4 +58,12 @@ def setup_monai_args(parser: ArgumentParser, hub_type: str) -> None:
             required=False,
             default="421337133742",
             help="Seed used by MONAI for random operations.",
+        )
+
+        arg_group.add_argument(
+            "-d",
+            "--devices",
+            required=False,
+            default=None,
+            help="The GPU devices to use. Only relevant if mode is `gpu`. By default all available devices are used. Specify devices by GPU IDs (e.g. `0`, `0,1`)",
         )

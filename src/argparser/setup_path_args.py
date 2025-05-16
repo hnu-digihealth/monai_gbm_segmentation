@@ -42,7 +42,7 @@ def setup_path_args(parser: ArgumentParser, hub_type: str) -> None:
     arg_group.add_argument(
         "-nip",
         "--normalizer_image_path",
-        required=True,
+        required=False if hub_type == "export" else True,
         help="Path to the normalizer image. This image will be used to normalize the input images.",
     )
 
@@ -67,8 +67,8 @@ def setup_path_args(parser: ArgumentParser, hub_type: str) -> None:
             "-tip",
             "--test_image_path",
             required=False,
-            help="Path to a single test image or a folder of containing multiple test images used for ONNX verification."
-            " Only requires the input image and no labels.",
+            help="Path to a single test image or a folder containing multiple test images used for ONNX verification. "
+            "Only requires the input image and no labels.",
         )
     elif hub_type == "test":
         arg_group.add_argument(

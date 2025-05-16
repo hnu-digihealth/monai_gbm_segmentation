@@ -60,10 +60,17 @@ def main(args: Namespace, logger: logging.Logger) -> None:
                 args.batch_size,
                 args.num_workers,
                 args.model_path,
+                args.mode,
+                args.devices,
             )
         case "export":
             logger.info("Launching ONNX export")
-            export_model(args.model_path, args.mode, args.test_path)
+            export_model(
+                args.model_path,
+                args.mode,
+                args.test_path,
+                args.normalizer_image_path,
+            )
 
 
 if __name__ == "__main__":
@@ -71,5 +78,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger = setup_logger("Segmenter", level=args.log_level)
     logger.info(f"Parsed CLI arguments: {args}")
-    print(args, logger)
     main(args, logger)

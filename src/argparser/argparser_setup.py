@@ -24,8 +24,8 @@ def cli_core() -> ArgumentParser:
         parser (ArgumentParser): The root argument parser.
     """
     # Set description for cli core
-    desc = """ Command-line interface for MONAI Histo Segmenter: a simple showcase for histopathological image \
-    segmentation with MONAI """
+    desc = """Command-line interface for MONAI Histo Segmenter: a simple showcase for histopathological image \
+    segmentation with MONAI"""
 
     # Setup ArgumentParser interface
     parser = ArgumentParser(prog="MONAI Histo Segmenter", description=desc)
@@ -77,14 +77,13 @@ def __cli_test(subparsers: _SubParsersAction) -> None:
 
 def __cli_onnx_export(subparsers: _SubParsersAction) -> None:
     """
-    Add 'onnx-export' subcommand for exporting a model to ONNX format.
+    Add onnx 'export' subcommand for exporting a model to ONNX format.
     """
     desc = """ Pipeline hub for Exporting a model trained with the training hub """
 
     parser_train = subparsers.add_parser("export", help=desc, add_help=False)
 
     setup_path_args(parser_train, "export")
-    setup_monai_args(parser_train, "export")
     __setup__help_args(parser_train)
 
 

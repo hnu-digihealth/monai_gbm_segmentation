@@ -77,11 +77,7 @@ def save_visualizations(
 
                 # axs[2].set_title("Ground Truth Mask")
                 gt_mask = labels[j][0].cpu().astype(uint8)
-                print(type(gt_mask))
-                print(np.unique(gt_mask))
                 gt_mask = np.invert(gt_mask)
-                print(type(gt_mask))
-                print(np.unique(gt_mask))
                 # axs[2].imshow(gt_mask, cmap='gray', vmin=254, vmax=255)
                 fig = plt.imshow(gt_mask, cmap="gray", vmin=254, vmax=255)
                 plt.savefig(os.path.join(output_dir, "3.png"))

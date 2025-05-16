@@ -93,6 +93,8 @@ def test_model(
     batch_size: int,
     num_workers: int,
     model_path: Path,
+    mode: str,
+    devices: str | None = None,
 ) -> None:
     """
     Evaluate a trained model on test data using MONAI metrics.
@@ -126,8 +128,11 @@ def test_model(
         metric_iou=MeanIoU(include_background=False, reduction="mean", ignore_empty=False),
     )
 
+    if mode == "cpu":
+        devices = None
+
     # Initialize PyTorch Lightning Trainer
     logger.info("Starting model evaluation")
-    trainer = Trainer(devices=1, accelerator="gpu" if torch.cuda.is_available() else "cpu")
+    trainer = Trainer(devices=devices or -1, accelerator=mode)
     trainer.test(pl_model, test_loader, ckpt_path=model_path)
     logger.info("Test run completed successfully")
