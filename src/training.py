@@ -170,6 +170,7 @@ def configure_trainer(model_path: Path, devices: Optional[list], mode: str) -> T
     )
 
 
+
 def run_training(model: UNetLightning, trainer: Trainer, train_loader: DataLoader, val_loader: DataLoader) -> None:
     """
     Runs the training loop.
