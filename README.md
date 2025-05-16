@@ -96,14 +96,17 @@ python monai_segmenter.py test \
 ```
 
 ### Export a Model to ONNX
-To export a trained model with the provided script call it with the `export`-hub. A help page is provided for setup with the `-h`-flag `python monai_segmenter.py export -h`.
-
+To export a trained model with the provided script call it with the `export`-hub. 
+The script will export the model with a dummy input and optionally verify the ONNX output using real test images.
+A help page is provided for setup with the `-h`-flag `python monai_segmenter.py export -h`.
 
 #### Example Call Export to ONNX
 ```bash
 python monai_segmenter.py export \
   --model_path ./models/unet.ckpt \
-  --mode gpu
+  --mode gpu \
+  --test_image_path ./data/test/img \
+  --normalizer_image_path ./data/reference_image.png
 ```
 
 ---
