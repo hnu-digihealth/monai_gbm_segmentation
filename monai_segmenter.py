@@ -67,7 +67,6 @@ def main(args: Namespace, logger: logging.Logger) -> None:
             logger.info("Launching ONNX export")
             export_model(
                 args.model_path,
-                args.mode,
                 args.test_path,
                 args.normalizer_image_path,
             )
