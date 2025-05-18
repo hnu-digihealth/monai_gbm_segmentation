@@ -13,8 +13,6 @@ from typing import Any, Sequence
 from monai.transforms import MapTransform
 
 logger = logging.getLogger("Preprocessing")
-
-
 logger.info("Preprocessing module loaded")
 
 

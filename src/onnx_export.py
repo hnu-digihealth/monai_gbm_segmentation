@@ -121,7 +121,6 @@ def verify_model(pytorch_model, onnx_model_path, input_tensor, rtol=1e-02, atol=
 
 def export_model(
     model_path: Path,
-    mode: str,
     test_image_path: Path | None = None,
     normalizer_image_path: Path | None = None,
 ) -> None:

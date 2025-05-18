@@ -157,9 +157,12 @@ def configure_trainer(model_path: Path, devices: Optional[list], mode: str) -> T
         except ValueError as err:
             raise ValueError(f"Invalid device string: {devices}") from err
 
+    if mode == "cpu":
+        devices = None
+
     return Trainer(
         max_epochs=150,
-        devices=devices or 1,
+        devices=devices or -1,
         accelerator=mode,
         precision=32,
         callbacks=[
